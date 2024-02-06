@@ -1,0 +1,6 @@
+ingressShim :
+  defaultIssuerKind: "ClusterIssuer"
+  default-issuer-name: "my-ca-issuer"
+prometheus:
+  servicemonitor:
+    enabled: true
