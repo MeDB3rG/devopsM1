@@ -1,0 +1,52 @@
+global:
+  storageClass: local-path
+replicaCount: 2
+podLabels:
+  app: app-wordpress
+ingress:
+  enabled: true
+  ingressClassName: "nginx"
+  hostname: wordpress.kubernetes.local
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: selfsigned-issuer
+  tls: true
+service:
+  type: ClusterIP
+persistance:
+  enabled: true
+  storageClass: "local-path"
+  accessModes:
+    - ReadWriteOnce
+  accessMode: ReadWriteOnce
+  size: 10Gi
+metrics:
+  enabled: true
+  service:
+    annotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "{{ .Values.metrics.containerPorts.metrics }}"
+  serviceMonitor:
+    enabled: true
+mariadb:
+  auth:
+    rootPassword: "root1234root"
+    username: bn_wordpress
+    password: "wordpress"
+  primary:
+    persistence:
+      enabled: true
+      storageClass: "local-path"
+      accessModes:
+        - ReadWriteOnce
+      size: 10Gi
+  networkPolicy:
+  enabled: true
+  namespaceSelector: wordpress
+  ingressRules:
+    primaryAccessOnlyFrom:
+      enabled: true
+      namespaceSelector:
+        label: wordpress
+      podSelector:
+        label: app-wordpress
